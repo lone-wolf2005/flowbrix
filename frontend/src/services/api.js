@@ -31,8 +31,18 @@ const saveMockDb = (db) => {
 // Check if real backend is available
 let backendReachable = false;
 const checkBackend = async () => {
+  const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const isHttps = window.location.protocol === "https:";
+
+  // If on HTTPS production site (like GitHub Pages), HTTP requests to localhost:8080 are blocked by Mixed Content.
+  // We instantly skip to avoid browser connection hangs.
+  if (!isLocalhost && isHttps) {
+    backendReachable = false;
+    return;
+  }
+
   try {
-    const res = await fetch(`${API_BASE}/hr/employees`, { method: "GET", signal: AbortSignal.timeout(1000) });
+    const res = await fetch(`${API_BASE}/hr/employees`, { method: "GET" });
     backendReachable = res.ok;
   } catch (e) {
     backendReachable = false;
