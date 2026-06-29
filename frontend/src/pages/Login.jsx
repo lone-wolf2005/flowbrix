@@ -115,6 +115,7 @@ export default function Login() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <button
+              type="button"
               onClick={() => handleQuickFill('john', 'john123')}
               className="btn-secondary"
               style={{ padding: '8px 12px', fontSize: '12px', whiteSpace: 'nowrap' }}
@@ -122,6 +123,7 @@ export default function Login() {
               Employee
             </button>
             <button
+              type="button"
               onClick={() => handleQuickFill('hr', 'hr123')}
               className="btn-secondary"
               style={{ padding: '8px 12px', fontSize: '12px', whiteSpace: 'nowrap' }}
@@ -129,6 +131,7 @@ export default function Login() {
               HR Admin
             </button>
             <button
+              type="button"
               onClick={() => handleQuickFill('manager', 'manager123')}
               className="btn-secondary"
               style={{ padding: '8px 12px', fontSize: '12px', whiteSpace: 'nowrap' }}
@@ -136,6 +139,7 @@ export default function Login() {
               Manager
             </button>
             <button
+              type="button"
               onClick={() => handleQuickFill('it', 'it123')}
               className="btn-secondary"
               style={{ padding: '8px 12px', fontSize: '12px', whiteSpace: 'nowrap' }}
