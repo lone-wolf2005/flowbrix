@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 import { 
   Users, Cpu, ArrowRight, CheckCircle, Smartphone, Laptop, Key
 } from 'lucide-react';
@@ -17,9 +18,7 @@ export default function ItDashboard() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/hr/employees');
-      if (!response.ok) throw new Error('Failed to fetch employee list');
-      const data = await response.json();
+      const data = await api.getEmployees();
       setEmployees(data);
     } catch (err) {
       setError(err.message);
@@ -32,9 +31,7 @@ export default function ItDashboard() {
     setDetailsLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/employee/${id}/details`);
-      if (!response.ok) throw new Error('Failed to fetch employee details');
-      const data = await response.json();
+      const data = await api.getEmployeeDetails(id);
       setEmpDetails(data);
       setSelectedEmpId(id);
     } catch (err) {
@@ -53,12 +50,7 @@ export default function ItDashboard() {
     if (!serialNumber.trim()) return;
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/it/allocate-asset/${selectedEmpId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assetName, serialNumber })
-      });
-      if (!response.ok) throw new Error('Failed to allocate asset');
+      await api.allocateAsset(selectedEmpId, { assetName, serialNumber });
       setSerialNumber('');
       await fetchEmployeeDetails(selectedEmpId);
       await fetchEmployees();
@@ -79,7 +71,7 @@ export default function ItDashboard() {
     <div style={{ paddingBottom: '80px' }}>
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ marginBottom: '8px' }}>IT Hardware & Asset Provisioning</h1>
-        <p>Allocate laptops, secure system credentials, and configure workspaces for approved personnel.</p>
+        <p>Allocate laptops, secure system credentials, and configure workspaces for approved personnel. {api.isMock() && "(Demo Mock Mode)"}</p>
       </div>
 
       {error && (

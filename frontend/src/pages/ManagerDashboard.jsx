@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 import { 
   Users, CheckCircle, Clipboard, AlertCircle, ArrowRight, Check
 } from 'lucide-react';
@@ -16,9 +17,7 @@ export default function ManagerDashboard() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/hr/employees');
-      if (!response.ok) throw new Error('Failed to fetch employee list');
-      const data = await response.json();
+      const data = await api.getEmployees();
       setEmployees(data);
     } catch (err) {
       setError(err.message);
@@ -31,9 +30,7 @@ export default function ManagerDashboard() {
     setDetailsLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/employee/${id}/details`);
-      if (!response.ok) throw new Error('Failed to fetch employee details');
-      const data = await response.json();
+      const data = await api.getEmployeeDetails(id);
       setEmpDetails(data);
       setSelectedEmpId(id);
     } catch (err) {
@@ -52,12 +49,7 @@ export default function ManagerDashboard() {
     if (!taskDescription.trim()) return;
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/hr/assign-task/${selectedEmpId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: taskDescription, assignedBy: 'Manager' })
-      });
-      if (!response.ok) throw new Error('Failed to assign task');
+      await api.assignTask(selectedEmpId, { description: taskDescription, assignedBy: 'Manager' });
       setTaskDescription('');
       await fetchEmployeeDetails(selectedEmpId);
     } catch (err) {
@@ -68,13 +60,7 @@ export default function ManagerDashboard() {
   const handleApproveOnboarding = async () => {
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/manager/approve/${selectedEmpId}`, {
-        method: 'POST'
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to approve onboarding');
-      }
+      await api.approveOnboarding(selectedEmpId);
       await fetchEmployeeDetails(selectedEmpId);
       await fetchEmployees();
     } catch (err) {
@@ -95,7 +81,7 @@ export default function ManagerDashboard() {
     <div style={{ paddingBottom: '80px' }}>
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ marginBottom: '8px' }}>Manager Approvals Board</h1>
-        <p>Review checklists, assign manager tasks, and sign off on completed onboardings.</p>
+        <p>Review checklists, assign manager tasks, and sign off on completed onboardings. {api.isMock() && "(Demo Mock Mode)"}</p>
       </div>
 
       {error && (

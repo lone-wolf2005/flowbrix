@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import { 
   User as UserIcon, Phone, MapPin, CreditCard, Upload, CheckCircle, 
   Clock, XCircle, Award, Briefcase, Cpu, Download
@@ -22,9 +23,7 @@ export default function EmployeeDashboard() {
   
   const fetchDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/employee/${user.id}/details`);
-      if (!response.ok) throw new Error('Failed to fetch onboarding details');
-      const data = await response.json();
+      const data = await api.getEmployeeDetails(user.id);
       setDetails(data);
       if (data.user) {
         setPhone(data.user.phone || '');
@@ -47,12 +46,7 @@ export default function EmployeeDashboard() {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/employee/${user.id}/profile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, address, bankName, bankAccountNumber: bankAccount })
-      });
-      if (!response.ok) throw new Error('Failed to update profile');
+      await api.completeProfile(user.id, { phone, address, bankName, bankAccountNumber: bankAccount });
       await fetchDetails();
     } catch (err) {
       setError(err.message);
@@ -67,12 +61,7 @@ export default function EmployeeDashboard() {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8080/api/employee/${user.id}/upload-doc`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: docName, fileUrl: docUrl })
-      });
-      if (!response.ok) throw new Error('Failed to upload document');
+      await api.uploadDoc(user.id, { name: docName, fileUrl: docUrl });
       setDocUrl('');
       await fetchDetails();
     } catch (err) {
@@ -82,10 +71,7 @@ export default function EmployeeDashboard() {
 
   const handleCompleteTask = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/employee/complete-task/${taskId}`, {
-        method: 'POST'
-      });
-      if (!response.ok) throw new Error('Failed to mark task completed');
+      await api.completeTask(taskId);
       await fetchDetails();
     } catch (err) {
       setError(err.message);
@@ -125,7 +111,7 @@ export default function EmployeeDashboard() {
     <div style={{ paddingBottom: '80px' }}>
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ marginBottom: '8px' }}>Welcome, {details?.user?.fullName}</h1>
-        <p>Role: Employee | Employee ID: #{details?.user?.id}</p>
+        <p>Role: Employee | Employee ID: #{details?.user?.id} {api.isMock() && " (Demo Mock Mode)"}</p>
       </div>
 
       {error && (

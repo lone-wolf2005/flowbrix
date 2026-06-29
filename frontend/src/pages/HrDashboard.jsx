@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 import { 
   Users, Check, X, Clipboard, ArrowRight, UserCheck, 
   MapPin, Phone, CreditCard, FileText
@@ -19,9 +20,7 @@ export default function HrDashboard() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/hr/employees');
-      if (!response.ok) throw new Error('Failed to fetch employee list');
-      const data = await response.json();
+      const data = await api.getEmployees();
       setEmployees(data);
     } catch (err) {
       setError(err.message);
@@ -34,9 +33,7 @@ export default function HrDashboard() {
     setDetailsLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/employee/${id}/details`);
-      if (!response.ok) throw new Error('Failed to fetch employee details');
-      const data = await response.json();
+      const data = await api.getEmployeeDetails(id);
       setEmpDetails(data);
       setSelectedEmpId(id);
     } catch (err) {
@@ -53,12 +50,7 @@ export default function HrDashboard() {
   const handleVerifyDoc = async (docId, status, reason = '') => {
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/hr/verify-doc/${docId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, rejectionReason: reason })
-      });
-      if (!response.ok) throw new Error('Failed to update document status');
+      await api.verifyDoc(docId, { status, rejectionReason: reason });
       
       // Reset rejection helper states
       setRejectDocId(null);
@@ -77,12 +69,7 @@ export default function HrDashboard() {
     if (!taskDescription.trim()) return;
     setError('');
     try {
-      const response = await fetch(`http://localhost:8080/api/hr/assign-task/${selectedEmpId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: taskDescription, assignedBy: 'HR' })
-      });
-      if (!response.ok) throw new Error('Failed to assign task');
+      await api.assignTask(selectedEmpId, { description: taskDescription, assignedBy: 'HR' });
       setTaskDescription('');
       await fetchEmployeeDetails(selectedEmpId);
       await fetchEmployees();
@@ -97,7 +84,7 @@ export default function HrDashboard() {
     <div style={{ paddingBottom: '80px' }}>
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ marginBottom: '8px' }}>HR Operations Hub</h1>
-        <p>Manage employee registrations, document approvals, and onboarding checklists.</p>
+        <p>Manage employee registrations, document approvals, and onboarding checklists. {api.isMock() && "(Demo Mock Mode)"}</p>
       </div>
 
       {error && (
@@ -182,7 +169,7 @@ export default function HrDashboard() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                         <div>
                           <p style={{ color: 'white', fontWeight: '600' }}>{doc.name}</p>
-                          <a href="#" onClick={(e) => { e.preventDefault(); alert(`Viewing simulated file: ${doc.fileUrl}`); }} style={{ fontSize: '12px', color: 'var(--accent-color)' }}>
+                          <a href="#" onClick={(e) => { e.preventDefault(); alert(`Viewing file: ${doc.fileUrl}`); }} style={{ fontSize: '12px', color: 'var(--accent-color)' }}>
                             View Uploaded File
                           </a>
                         </div>
