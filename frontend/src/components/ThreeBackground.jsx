@@ -48,7 +48,7 @@ function StarField(props) {
 export default function ThreeBackground() {
   return (
     <div className="canvas-container">
-      <Canvas camera={{ position: [0, 0, 1.2] }}>
+      <Canvas camera={{ position: [0, 0, 1.2] }} style={{ pointerEvents: 'none' }}>
         <ambientLight intensity={0.5} />
         <StarField />
       </Canvas>
