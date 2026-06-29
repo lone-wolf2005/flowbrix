@@ -34,9 +34,12 @@ const checkBackend = async () => {
   const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
   const isHttps = window.location.protocol === "https:";
 
+  console.log("api.js: checkBackend start. Host:", window.location.hostname, "Protocol:", window.location.protocol);
+
   // If on HTTPS production site (like GitHub Pages), HTTP requests to localhost:8080 are blocked by Mixed Content.
   // We instantly skip to avoid browser connection hangs.
   if (!isLocalhost && isHttps) {
+    console.log("api.js: Production HTTPS detected. Instantly bypassing backend fetch.");
     backendReachable = false;
     return;
   }
@@ -44,7 +47,9 @@ const checkBackend = async () => {
   try {
     const res = await fetch(`${API_BASE}/hr/employees`, { method: "GET" });
     backendReachable = res.ok;
+    console.log("api.js: Backend ping response ok:", res.ok);
   } catch (e) {
+    console.warn("api.js: Backend ping failed, falling back to mock:", e.message || e);
     backendReachable = false;
   }
 };
@@ -56,8 +61,11 @@ export const api = {
   isMock: () => !backendReachable,
 
   login: async (username, password) => {
+    console.log("api.js: login method called. Checking backend...");
     await checkBackend();
+    console.log("api.js: backendReachable after check:", backendReachable);
     if (backendReachable) {
+      console.log("api.js: Fetching credentials from real server...");
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,10 +77,15 @@ export const api = {
       }
       return res.json();
     } else {
-      // Mock logic
+      console.log("api.js: Performing local mock lookup...");
       const db = getMockDb();
+      console.log("api.js: Loaded mock users count:", db.users?.length);
       const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-      if (!user) throw new Error("Invalid username or password (mock mode)");
+      if (!user) {
+        console.warn("api.js: Mock lookup failed for:", username);
+        throw new Error("Invalid username or password (mock mode)");
+      }
+      console.log("api.js: Mock lookup successful! Found user:", user.fullName);
       return user;
     }
   },

@@ -8,12 +8,15 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const login = async (username, password) => {
+    console.log("AuthContext.jsx: login function entered. Calling api.login...");
     try {
       const userData = await api.login(username, password);
+      console.log("AuthContext.jsx: api.login returned user data:", userData);
       setUser(userData);
       localStorage.setItem('flowbrix_user', JSON.stringify(userData));
       return userData;
     } catch (error) {
+      console.error("AuthContext.jsx: api.login threw error:", error);
       throw error;
     }
   };

@@ -11,11 +11,15 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Login.jsx: Form submitted! Username:", username);
     setError('');
     setLoading(true);
     try {
-      await login(username, password);
+      console.log("Login.jsx: Calling login context function...");
+      const result = await login(username, password);
+      console.log("Login.jsx: Login context function resolved successfully!", result);
     } catch (err) {
+      console.error("Login.jsx: Caught login error:", err);
       setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
