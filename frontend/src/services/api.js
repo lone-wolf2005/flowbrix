@@ -3,7 +3,7 @@ const API_BASE = "http://localhost:8080/api";
 
 // Initialize Local Mock DB if not present
 const initMockDb = () => {
-  if (!localStorage.getItem("flowbrix_db")) {
+  if (!localStorage.getItem("flowbrix_db_v2")) {
     const initialDb = {
       users: [
         { id: 999, username: "hr", fullName: "HR Administrator", role: "HR_ADMIN", status: "ACTIVE", password: "hr123", email: "hr@flowbrix.com" },
@@ -15,17 +15,17 @@ const initMockDb = () => {
       tasks: [],
       assets: []
     };
-    localStorage.setItem("flowbrix_db", JSON.stringify(initialDb));
+    localStorage.setItem("flowbrix_db_v2", JSON.stringify(initialDb));
   }
 };
 
 const getMockDb = () => {
   initMockDb();
-  return JSON.parse(localStorage.getItem("flowbrix_db"));
+  return JSON.parse(localStorage.getItem("flowbrix_db_v2"));
 };
 
 const saveMockDb = (db) => {
-  localStorage.setItem("flowbrix_db", JSON.stringify(db));
+  localStorage.setItem("flowbrix_db_v2", JSON.stringify(db));
 };
 
 // Check if real backend is available
