@@ -27,6 +27,7 @@ export default function Login() {
   };
 
   const handleQuickFill = (user, pass) => {
+    console.log("Login.jsx: handleQuickFill clicked! Filling credentials for:", user);
     setUsername(user);
     setPassword(pass);
     setError('');
@@ -107,7 +108,13 @@ export default function Login() {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
+          <button 
+            type="submit" 
+            className="btn-primary" 
+            style={{ width: '100%' }} 
+            disabled={loading}
+            onClick={() => console.log("Login.jsx: Submit button HTML onClick fired!")}
+          >
             {loading ? 'Authenticating...' : 'Sign In'}
             {!loading && <ArrowRight size={18} />}
           </button>
